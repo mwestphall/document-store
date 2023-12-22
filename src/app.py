@@ -7,7 +7,7 @@ from sqlalchemy import select
 from db.db import Session, DbArticle
 from uuid import UUID
 from model.models import Document
-from s3.s3_client import get_presigned_url
+from pdf.pdf_operations import extract_page
 
 api_prefix = environ['API_PREFIX']
 
@@ -32,10 +32,12 @@ def get_document(document_id: UUID) -> Document:
 @prefix_router.get("/documents/{document_id}/pdf")
 def get_document_contents(document_id: UUID) -> RedirectResponse:
     with Session() as session:
-        return RedirectResponse(
-            get_presigned_url(
-                session.get(DbArticle, document_id)
-            )
-        )
+        return RedirectResponse(session.get(DbArticle, document_id).presigned_url())
+
+@prefix_router.get("/documents/{document_id}/page/{page_num}")
+def get_document_page_contents(document_id: UUID, page_num: int) -> RedirectResponse:
+    with Session() as session:
+        article = session.get(DbArticle, document_id)
+        return RedirectResponse(extract_page(article, page_num))
 
 app.include_router(prefix_router)

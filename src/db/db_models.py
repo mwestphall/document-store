@@ -3,6 +3,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import DeclarativeBase
 from model.models import Document
 from uuid import uuid4
+from s3.s3_client import get_presigned_url, get_article_path
 
 
 class Base(DeclarativeBase):
@@ -23,3 +24,7 @@ class DbArticle(Base):
 
     def as_model(self) -> Document:
         return Document(id=self.id, xdd_id=self.xdd_doc_id, title=self.title, doi=self.doi)
+
+    def presigned_url(self) -> str:
+        return get_presigned_url(self.bucket_name, get_article_path(self.id))
+
