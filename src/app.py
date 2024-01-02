@@ -7,7 +7,7 @@ from sqlalchemy import select
 from db.db import Session, DbArticle
 from uuid import UUID
 from model.models import Document
-from pdf.pdf_operations import extract_page
+from pdf.pdf_operations import extract_page, extract_snippet
 
 api_prefix = environ['API_PREFIX']
 
@@ -39,5 +39,19 @@ def get_document_page_contents(document_id: UUID, page_num: int) -> RedirectResp
     with Session() as session:
         article = session.get(DbArticle, document_id)
         return RedirectResponse(extract_page(article, page_num))
+
+
+@prefix_router.get("/documents/{document_id}/page/{page_num}")
+def get_document_snippet(document_id: UUID, page_num: int) -> RedirectResponse:
+    with Session() as session:
+        article = session.get(DbArticle, document_id)
+        return RedirectResponse(extract_page(article, page_num))
+
+@prefix_router.get("/documents/{document_id}/page/{page_num}/snippet/{snippet}")
+def get_document_snippet(document_id: UUID, page_num: int, snippet: str) -> RedirectResponse:
+    snippet_bb = [int(s) for s in snippet.split(',')]
+    with Session() as session:
+        article = session.get(DbArticle, document_id)
+        return RedirectResponse(extract_snippet(article, page_num, snippet_bb))
 
 app.include_router(prefix_router)
