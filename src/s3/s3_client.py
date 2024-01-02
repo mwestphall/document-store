@@ -1,6 +1,7 @@
 from os import environ
 from uuid import UUID
 from boto3 import Session
+from typing import Literal
 
 session = Session(aws_access_key_id=environ['S3_ACCESS_KEY'], aws_secret_access_key=environ['S3_SECRET_KEY'])
 s3 = session.client("s3", endpoint_url="https://s3.xdd-pdfstore.chtc.io", region_name='us-east-1')
@@ -9,11 +10,11 @@ s3 = session.client("s3", endpoint_url="https://s3.xdd-pdfstore.chtc.io", region
 def get_article_path(id: UUID):
     return f"documents/{id}.pdf"
 
-def get_page_path(id: UUID, page: int):
-    return f"pages/{id}/{page}.pdf"
+def get_page_path(id: UUID, page: int, content_type: Literal['pdf', 'webp'] = 'pdf'):
+    return f"pages/{id}/{page}.{content_type}"
 
-def get_snippet_path(id: UUID, page: int, bb: tuple[int, int, int, int]):
-    return f"snippets/{id}/{page}_{bb[0]}_{bb[1]}_{bb[2]}_{bb[3]}.pdf"
+def get_snippet_path(id: UUID, page: int, bb: tuple[int, int, int, int], content_type: Literal['pdf', 'webp'] = 'pdf'):
+    return f"snippets/{id}/{page}_{bb[0]}_{bb[1]}_{bb[2]}_{bb[3]}.{content_type}"
 
 
 def get_presigned_url(bucket: str, path: str):

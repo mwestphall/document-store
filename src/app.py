@@ -6,7 +6,8 @@ from fastapi.logger import logger
 from sqlalchemy import select
 from db.db import Session, DbArticle
 from uuid import UUID
-from model.models import Document
+from model.models import Document, DocumentType
+from typing import Literal
 from pdf.pdf_operations import extract_page, extract_snippet
 
 api_prefix = environ['API_PREFIX']
@@ -42,16 +43,16 @@ def get_document_page_contents(document_id: UUID, page_num: int) -> RedirectResp
 
 
 @prefix_router.get("/documents/{document_id}/page/{page_num}")
-def get_document_snippet(document_id: UUID, page_num: int) -> RedirectResponse:
+def get_document_snippet(document_id: UUID, page_num: int, content_type: DocumentType = 'pdf') -> RedirectResponse:
     with Session() as session:
         article = session.get(DbArticle, document_id)
-        return RedirectResponse(extract_page(article, page_num))
+        return RedirectResponse(extract_page(article, page_num, content_type))
 
 @prefix_router.get("/documents/{document_id}/page/{page_num}/snippet/{snippet}")
-def get_document_snippet(document_id: UUID, page_num: int, snippet: str) -> RedirectResponse:
+def get_document_snippet(document_id: UUID, page_num: int, snippet: str, content_type: DocumentType = 'pdf') -> RedirectResponse:
     snippet_bb = [int(s) for s in snippet.split(',')]
     with Session() as session:
         article = session.get(DbArticle, document_id)
-        return RedirectResponse(extract_snippet(article, page_num, snippet_bb))
+        return RedirectResponse(extract_snippet(article, page_num, snippet_bb, content_type))
 
 app.include_router(prefix_router)

@@ -1,6 +1,8 @@
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Optional, Literal
 from uuid import UUID
+
+DocumentType = Literal['pdf', 'webp', 'svg']
 
 class Document(BaseModel):
     id: UUID = Field(..., description="The internal ID of the document")
