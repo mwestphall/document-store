@@ -12,9 +12,10 @@ def get_page_from_stream(body: IO, page: int) -> fitz.Document:
     return doc
 
 
-def highlight_region(doc: fitz.Document, bounds: tuple[int, int, int, int], page=0):
+def highlight_region(doc: fitz.Document, bounds: tuple[int, int, int, int], page_num=0):
     # assumes a single page document generated via get_page_from_stream
-    rect : fitz.Annot = doc[page].add_rect_annot(fitz.Rect(*bounds))
+    page = doc[page_num]
+    rect : fitz.Annot = page.add_rect_annot(fitz.Rect(*bounds))
     rect.set_colors(fill=COLOR_GOLD)
     rect.update(opacity=0.5)
 
