@@ -30,7 +30,7 @@ def get_document(document_id: UUID) -> Document:
         return session.get(DbArticle, document_id).as_model()
 
 
-@prefix_router.get("/documents/{document_id}/pdf")
+@prefix_router.get("/documents/{document_id}/content")
 def get_document_contents(document_id: UUID, x_api_key: Optional[str] = Header(None)) -> RedirectResponse:
     return RedirectResponse(
         get_article_with_auth(document_id, x_api_key).presigned_url())
