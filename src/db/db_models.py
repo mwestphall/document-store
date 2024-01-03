@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String
+from sqlalchemy import Column, String, Boolean
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import DeclarativeBase
 from model.models import Document
@@ -27,4 +27,15 @@ class DbArticle(Base):
 
     def presigned_url(self) -> str:
         return get_presigned_url(self.bucket_name, get_article_path(self.id))
+
+
+
+class DbApiKey(Base):
+    """ORM Mapping for simple API key based authorization to access copyright-protected documents"""
+    __tablename__ = "api_keys"
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
+    api_key = Column(String, unique=True)
+    enabled = Column(Boolean, default=True)
+
+
 

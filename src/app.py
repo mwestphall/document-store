@@ -1,13 +1,13 @@
 from os import environ
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, Header
 from fastapi.responses import RedirectResponse
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.logger import logger
 from sqlalchemy import select
-from db.db import Session, DbArticle
+from db.db import Session, DbArticle, get_article_with_auth
 from uuid import UUID
 from model.models import Document, DocumentType
-from typing import Literal
+from typing import Optional
 from pdf.pdf_operations import extract_page, extract_snippet
 
 api_prefix = environ['API_PREFIX']
@@ -31,28 +31,23 @@ def get_document(document_id: UUID) -> Document:
 
 
 @prefix_router.get("/documents/{document_id}/pdf")
-def get_document_contents(document_id: UUID) -> RedirectResponse:
-    with Session() as session:
-        return RedirectResponse(session.get(DbArticle, document_id).presigned_url())
+def get_document_contents(document_id: UUID, x_api_key: Optional[str] = Header(None)) -> RedirectResponse:
+    return RedirectResponse(
+        get_article_with_auth(document_id, x_api_key).presigned_url())
 
 @prefix_router.get("/documents/{document_id}/page/{page_num}")
-def get_document_page_contents(document_id: UUID, page_num: int) -> RedirectResponse:
-    with Session() as session:
-        article = session.get(DbArticle, document_id)
-        return RedirectResponse(extract_page(article, page_num))
-
-
-@prefix_router.get("/documents/{document_id}/page/{page_num}")
-def get_document_snippet(document_id: UUID, page_num: int, content_type: DocumentType = 'pdf') -> RedirectResponse:
-    with Session() as session:
-        article = session.get(DbArticle, document_id)
-        return RedirectResponse(extract_page(article, page_num, content_type))
+def get_document_snippet(
+        document_id: UUID, page_num: int, content_type: DocumentType = 'pdf', 
+        x_api_key: Optional[str] = Header(None)) -> RedirectResponse:
+    article = get_article_with_auth(document_id, x_api_key)
+    return RedirectResponse(extract_page(article, page_num, content_type))
 
 @prefix_router.get("/documents/{document_id}/page/{page_num}/snippet/{snippet}")
-def get_document_snippet(document_id: UUID, page_num: int, snippet: str, content_type: DocumentType = 'pdf') -> RedirectResponse:
+def get_document_snippet(
+        document_id: UUID, page_num: int, snippet: str, content_type: DocumentType = 'pdf', 
+        x_api_key: Optional[str] = Header(None)) -> RedirectResponse:
     snippet_bb = [int(s) for s in snippet.split(',')]
-    with Session() as session:
-        article = session.get(DbArticle, document_id)
-        return RedirectResponse(extract_snippet(article, page_num, snippet_bb, content_type))
+    article = get_article_with_auth(document_id, x_api_key)
+    return RedirectResponse(extract_snippet(article, page_num, snippet_bb, content_type))
 
 app.include_router(prefix_router)
