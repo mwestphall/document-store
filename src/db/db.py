@@ -1,5 +1,5 @@
 from sqlalchemy import create_engine, select
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, Session
 from os import environ
 import urllib.parse
 from uuid import UUID
@@ -14,17 +14,19 @@ engine = setup_engine()
 
 # Create tables if they don't exist
 Base.metadata.create_all(engine)
-Session = sessionmaker(bind=engine)
-
+DbSession = sessionmaker(bind=engine)
 
 # TODO don't hardcode which bucket is public
-PUBLIC_PDFS_BUCKET = "public-pdfs"
+PUBLIC_PDF_BUCKET = "public-pdfs"
+
+def _api_key_valid(session: Session, api_key: str):
+    """ Check the API key exists and is enabled """
+    return session.scalars(select(DbApiKey).filter_by(api_key=api_key, enabled=True)).first() is not None
 
 def get_article_with_auth(article_id: UUID, api_key: str) -> DbArticle:
-    with Session() as session:
+    """ Retrieve an article's metadata, then ensure the requesting user has permissions to access the document """
+    with DbSession() as session:
         article = session.get(DbArticle, article_id)
-        if article.bucket_name != PUBLIC_PDFS_BUCKET:
-            key = session.scalars(select(DbApiKey).filter_by(api_key=api_key, enabled=True)).first()
-            if key is None:
-                raise HTTPException(status_code=403, detail="Invalid API key")
+        if article.bucket_name != PUBLIC_PDF_BUCKET and not _api_key_valid(session, api_key):
+            raise HTTPException(status_code=403, detail="Invalid API key")
         return article

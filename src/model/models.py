@@ -5,6 +5,7 @@ from uuid import UUID
 DocumentType = Literal['pdf', 'webp', 'svg']
 
 class Document(BaseModel):
+    """ JSON model for user-facing document metadata """
     id: UUID = Field(..., description="The internal ID of the document")
     title: str = Field(..., description="Title of the document")
     xdd_id: Optional[str] = Field(None, description="The XDD Canonical ID of the document, if present")
