@@ -82,13 +82,12 @@ contained in xDD).
 
 ### Full-text PDFs
 
-- `/document/<stable-id>.pdf`: The full-text PDF associated with an xDD ID
+- `/document/<stable-id>/content`: The full-text PDF associated with an xDD ID
 
 ### Page extraction images
 
-- `/document/<stable-id>/page/<n>.{pdf|webp}`: Page PDF thumbnail
-- `/document/<stable-id>/page/<n>/<x1>,<y1>,<x2>,<y2>.{pdf|webp}`: A windowed page
-  thumbnail
+- `/document/<stable-id>/page/<n>?content_type={pdf|webp|svg}`: Page PDF thumbnail
+- `/document/<stable-id>/page/<n>/snippet/<x1>,<y1>,<x2>,<y2>?content_type={pdf|webp|svg}`: Page PDF thumbnail with the given snippet highlighted
 - Images should be dynamically generated with caching as appropriate
 
 ## Usage
