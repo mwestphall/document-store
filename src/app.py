@@ -2,7 +2,6 @@ from os import environ
 from fastapi import FastAPI, APIRouter, Header
 from fastapi.responses import RedirectResponse
 from fastapi.middleware.gzip import GZipMiddleware
-from fastapi.logger import logger
 from sqlalchemy import select
 from db.db import DbSession, DbArticle, get_article_with_auth
 from uuid import UUID
@@ -42,7 +41,7 @@ def get_document_contents(document_id: UUID, x_api_key: Optional[str] = Header(N
     return RedirectResponse(operator.get_presigned_document())
 
 @prefix_router.get("/documents/{document_id}/page/{page_num}")
-def get_document_snippet(
+def get_document_page(
         document_id: UUID, page_num: int, content_type: DocumentType = 'pdf', 
         x_api_key: Optional[str] = Header(None)) -> RedirectResponse:
     """ Return a redirect to the contents of a single page of the given document
