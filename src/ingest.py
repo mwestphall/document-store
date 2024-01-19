@@ -9,6 +9,8 @@ from uuid import uuid4
 WORK_DIR = environ['WORK_DIR']
 BUCKET = environ['S3_BUCKET']
 BATCH = environ['INGEST_BATCH']
+START_IDX = environ.get('START_IDX')
+STOP_IDX = environ.get('STOP_IDX')
 
 def article_from_bibjson(entry: dict) -> DbArticle:
     article = DbArticle()
@@ -33,7 +35,7 @@ def article_from_bibjson(entry: dict) -> DbArticle:
 with open(path.join(WORK_DIR,'bibjson')) as f:
     bibjson = json.load(f)
 
-for entry in bibjson:
+for entry in bibjson[START_IDX:STOP_IDX]:
 
     try:
         # TODO creating a separate transaction for each article is going to be slow, want things to be
