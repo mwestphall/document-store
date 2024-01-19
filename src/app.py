@@ -6,7 +6,7 @@ from sqlalchemy import select
 from db import db
 from uuid import UUID
 from typing import Optional
-from model.api_models import Article, DocumentType
+from model.api_models import Article, DocumentType, DatabaseMetrics
 from pdf.pdf_operations import PdfOperator, PdfPageOperator, PdfPageSnippetOperator
 
 api_prefix = environ['API_PREFIX']
@@ -57,5 +57,9 @@ def get_document_snippet(
     article = db.get_article(document_id, x_api_key)
     operator = PdfPageSnippetOperator(article, page_num, snippet_bb, content_type)
     return RedirectResponse(operator.get_presigned_document())
+
+@prefix_router.get("/metrics")
+def get_metrics() -> DatabaseMetrics:
+    return db.get_db_metrics()
 
 app.include_router(prefix_router)
