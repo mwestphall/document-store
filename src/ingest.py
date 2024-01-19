@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from os import environ, path
 import json
 import fitz
@@ -9,8 +10,8 @@ from uuid import uuid4
 WORK_DIR = environ['WORK_DIR']
 BUCKET = environ['S3_BUCKET']
 BATCH = environ['INGEST_BATCH']
-START_IDX = environ.get('START_IDX')
-STOP_IDX = environ.get('STOP_IDX')
+START_IDX = int(environ['START_IDX']) if 'START_IDX' in environ else None
+STOP_IDX = int(environ['STOP_IDX']) if 'STOP_IDX' in environ else None
 
 def article_from_bibjson(entry: dict) -> DbArticle:
     article = DbArticle()
