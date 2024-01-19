@@ -5,7 +5,7 @@ import urllib.parse
 from uuid import UUID
 from fastapi import HTTPException
 from .db_models import Base, DbArticle, DbApiKey
-from ..model.api_models import Article
+from model.api_models import Article
 
 def setup_engine():
     """ Create a new postgres connection based on environment variables """
