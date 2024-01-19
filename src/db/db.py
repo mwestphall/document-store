@@ -5,6 +5,7 @@ import urllib.parse
 from uuid import UUID
 from fastapi import HTTPException
 from .db_models import Base, DbArticle, DbApiKey
+from ..model.api_models import Article
 
 def setup_engine():
     """ Create a new postgres connection based on environment variables """
@@ -23,10 +24,18 @@ def _api_key_valid(session: Session, api_key: str):
     """ Check the API key exists and is enabled """
     return session.scalars(select(DbApiKey).filter_by(api_key=api_key, enabled=True)).first() is not None
 
-def get_article_with_auth(article_id: UUID, api_key: str) -> DbArticle:
-    """ Retrieve an article's metadata, then ensure the requesting user has permissions to access the document """
+def get_article_list(page_number: int, per_page: int) -> list[Article]:
+    """ Retrieve a paginated list of article summaries """
+    with DbSession() as session:
+        articles = session.scalars(select(DbArticle)
+            .order_by(DbArticle.title).limit(per_page).offset(page_number * per_page)).all()
+        return [Article.from_db_article(a) for a in articles]
+
+def get_article(article_id: UUID, api_key: str, auth_required: bool = True) -> Article:
+    """ Retrieve an article's metadata, then optionally ensure the requesting user has permissions to access the document """
     with DbSession() as session:
         article = session.get(DbArticle, article_id)
-        if article.bucket_name != PUBLIC_PDF_BUCKET and not _api_key_valid(session, api_key):
+        if auth_required and article.bucket_name != PUBLIC_PDF_BUCKET and not _api_key_valid(session, api_key):
             raise HTTPException(status_code=403, detail="Invalid API key")
-        return article
+        return Article.from_db_article(article)
+
