@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 from typing import Optional, Literal, Any
 from uuid import UUID
 from db.db_models import DbArticle
@@ -31,7 +31,7 @@ class Article(BaseModel):
             pages = db_article.page_count,
             page_width = db_article.page_width,
             page_height = db_article.page_height,
-            xdd_link = db_article.xdd_doc_id,
+            xdd_link = db_article.xdd_link,
             doi_link = db_article.doi_link,
             ingest_date = db_article.ingest_date,
             ingest_batch = db_article.ingest_batch
@@ -41,3 +41,13 @@ class Article(BaseModel):
 class DatabaseMetrics(BaseModel):
     """ JSON model for database metrics """
     document_count: int = Field(..., description="The count of documents in the database")
+
+
+class ArticleQuery(BaseModel):
+    """ Query parameters model for searching articles """
+    xdd_id: Optional[str] = Field(None, description="The XDD Canonical ID of the document to search")
+    doi: Optional[str] = Field(None, description="The digital object identifier of the document to search")
+
+    @model_validator(mode='after')
+    def check_not_empty(self):
+        assert self.xdd_id or self.doi, "Must provide at least one query parameter"

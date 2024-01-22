@@ -1,12 +1,12 @@
 from os import environ
-from fastapi import FastAPI, APIRouter, Header
+from fastapi import FastAPI, APIRouter, Header, Depends
 from fastapi.responses import RedirectResponse
 from fastapi.middleware.gzip import GZipMiddleware
 from sqlalchemy import select
 from db import db
 from uuid import UUID
 from typing import Optional
-from model.api_models import Article, DocumentType, DatabaseMetrics
+from model.api_models import Article, DocumentType, DatabaseMetrics, ArticleQuery
 from pdf.pdf_operations import PdfOperator, PdfPageOperator, PdfPageSnippetOperator
 
 api_prefix = environ['API_PREFIX']
@@ -61,5 +61,10 @@ def get_document_snippet(
 @prefix_router.get("/metrics")
 def get_metrics() -> DatabaseMetrics:
     return db.get_db_metrics()
+
+@prefix_router.get("/query")
+def query_articles(query: ArticleQuery = Depends()) -> Article:
+    """ Query an article based on an external ID (xdd id or doi)"""
+    return db.query_articles(query)
 
 app.include_router(prefix_router)
