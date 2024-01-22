@@ -31,11 +31,11 @@ def get_article_list(page_number: int, per_page: int) -> list[Article]:
             .order_by(DbArticle.title).limit(per_page).offset(page_number * per_page)).all()
         return [Article.from_db_article(a) for a in articles]
 
-def get_article(article_id: UUID, api_key: str, auth_required: bool = True) -> Article:
+def get_article(article_id: UUID, api_key: str, auth_required: bool = True) -> DbArticle:
     """ Retrieve an article's metadata, then optionally ensure the requesting user has permissions to access the document """
     with DbSession() as session:
         article = session.get(DbArticle, article_id)
         if auth_required and article.bucket_name != PUBLIC_PDF_BUCKET and not _api_key_valid(session, api_key):
             raise HTTPException(status_code=403, detail="Invalid API key")
-        return Article.from_db_article(article)
+        return article
 

@@ -24,7 +24,7 @@ def get_documents(page: int = 0, per_page: int = 25) -> list[Article]:
 @prefix_router.get("/documents/{document_id}")
 def get_document(document_id: UUID) -> Article:
     """ Return the metadata for the given document """
-    return db.get_article(document_id, None, False)
+    return Article.from_db_article(db.get_article(document_id, None, False))
 
 
 @prefix_router.get("/documents/{document_id}/content")
