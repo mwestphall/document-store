@@ -8,6 +8,7 @@ from uuid import UUID
 from typing import Optional
 from model.api_models import Article, DocumentType, DatabaseMetrics, ArticleQuery
 from pdf.pdf_operations import PdfOperator, PdfPageOperator, PdfPageSnippetOperator
+from util.openapi_reverse_proxy_util import add_openapi_route
 
 api_prefix = environ['API_PREFIX']
 
@@ -15,6 +16,8 @@ app = FastAPI(title="xDD Article Store", docs_url=f"{api_prefix}/docs")
 app.add_middleware(GZipMiddleware)
 
 prefix_router = APIRouter(prefix=api_prefix)
+
+add_openapi_route(prefix_router)
 
 @prefix_router.get("/documents")
 def get_documents(page: int = 0, per_page: int = 25) -> list[Article]:
