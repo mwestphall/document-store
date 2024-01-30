@@ -2,7 +2,7 @@ from fitz.fitz import Document
 from db.db_models import DbArticle
 from s3.s3_client import *
 from typing import Optional
-from model.models import DocumentType
+from model.api_models import DocumentType
 import fitz
 
 COLOR_GOLD = (1, 1, 0)
