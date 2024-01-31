@@ -41,7 +41,6 @@ class Article(BaseModel):
 class DatabaseMetrics(BaseModel):
     """ JSON model for database metrics """
     document_count: int = Field(..., description="The count of documents in the database")
-<<<<<<< HEAD
 
 
 class ArticleQuery(BaseModel):
@@ -52,5 +51,3 @@ class ArticleQuery(BaseModel):
     @model_validator(mode='after')
     def check_not_empty(self):
         assert self.xdd_id or self.doi, "Must provide at least one query parameter"
-=======
->>>>>>> main
