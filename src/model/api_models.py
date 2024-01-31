@@ -37,3 +37,7 @@ class Article(BaseModel):
             ingest_batch = db_article.ingest_batch
         )
 
+
+class DatabaseMetrics(BaseModel):
+    """ JSON model for database metrics """
+    document_count: int = Field(..., description="The count of documents in the database")

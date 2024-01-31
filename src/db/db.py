@@ -1,11 +1,11 @@
-from sqlalchemy import create_engine, select
+from sqlalchemy import create_engine, select, func
 from sqlalchemy.orm import sessionmaker, Session
 from os import environ
 import urllib.parse
 from uuid import UUID
 from fastapi import HTTPException
 from .db_models import Base, DbArticle, DbApiKey
-from model.api_models import Article
+from model.api_models import Article, DatabaseMetrics
 
 def setup_engine():
     """ Create a new postgres connection based on environment variables """
@@ -39,3 +39,8 @@ def get_article(article_id: UUID, api_key: str, auth_required: bool = True) -> D
             raise HTTPException(status_code=403, detail="Invalid API key")
         return article
 
+def get_db_metrics() -> DatabaseMetrics:
+    """ Retrieve miscellaneous metadata about the state of the database """
+    with DbSession() as session:
+        document_count = session.query(func.count(DbArticle.id)).scalar()
+        return DatabaseMetrics(document_count=document_count)
