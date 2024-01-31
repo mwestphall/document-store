@@ -5,7 +5,8 @@ import urllib.parse
 from uuid import UUID
 from fastapi import HTTPException
 from .db_models import Base, DbArticle, DbApiKey
-from model.api_models import Article, DatabaseMetrics
+from .article_query import build_article_query
+from model.api_models import Article, DatabaseMetrics, ArticleQuery
 
 def setup_engine():
     """ Create a new postgres connection based on environment variables """
@@ -44,3 +45,12 @@ def get_db_metrics() -> DatabaseMetrics:
     with DbSession() as session:
         document_count = session.query(func.count(DbArticle.id)).scalar()
         return DatabaseMetrics(document_count=document_count)
+
+def query_articles(query: ArticleQuery) -> DbArticle:
+    """ Find an article based on its xdd id or doi """
+    with DbSession() as session:
+        article = session.scalar(build_article_query(query))
+        if article is None:
+            raise HTTPException(404, "Article matching query criteria not found")
+        return Article.from_db_article(article)
+
