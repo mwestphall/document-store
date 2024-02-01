@@ -21,7 +21,8 @@ def article_from_bibjson(entry: dict) -> DbArticle:
 
     # Info from BibJSON
     article.xdd_doc_id = [e["id"] for e in entry["identifier"] if e["type"] == "_xddid"][0]
-    article.doi =  [e["id"] for e in entry["identifier"] if e["type"] == "doi"][0] or None
+    doi_entries = [e["id"] for e in entry["identifier"] if e["type"] == "doi"]
+    article.doi = doi_entries[0] or None if doi_entries else None
     article.title = entry["title"]
 
     # Info from basic PDF metadata
@@ -36,8 +37,9 @@ def article_from_bibjson(entry: dict) -> DbArticle:
 with open(path.join(WORK_DIR,'bibjson')) as f:
     bibjson = json.load(f)
 
-for entry in bibjson[START_IDX:STOP_IDX]:
+for idx, entry in enumerate(bibjson[START_IDX:STOP_IDX]):
 
+    print(f"Ingesting {entry['identifier'][0]['id']} (${idx})")
     try:
         # TODO creating a separate transaction for each article is going to be slow, want things to be
         # as atomic as possible (for starters) though
