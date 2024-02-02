@@ -9,6 +9,8 @@ class Article(BaseModel):
     """ JSON model for user-facing document metadata """
     id: UUID = Field(..., description="The internal ID of the document")
     title: str = Field(..., description="Title of the document")
+    is_public: bool = Field(..., description="Whether the full content of the PDF can be downloaded without authorization")
+
     xdd_id: Optional[str] = Field(None, description="The XDD Canonical ID of the document, if present")
     doi: Optional[str] = Field(None, description="The digital object identifier of the document, if present")
     pages: Optional[int] = Field(None, description="Document page count")
@@ -19,6 +21,7 @@ class Article(BaseModel):
 
     xdd_link: Optional[str] = Field(None, description="xdd api link to the article")
     doi_link: Optional[str] = Field(None, description="doi.org link to the article")
+
 
 
     @staticmethod
@@ -34,7 +37,8 @@ class Article(BaseModel):
             xdd_link = db_article.xdd_link,
             doi_link = db_article.doi_link,
             ingest_date = db_article.ingest_date,
-            ingest_batch = db_article.ingest_batch
+            ingest_batch = db_article.ingest_batch,
+            is_public=db_article.is_public
         )
 
 

@@ -3,6 +3,9 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import DeclarativeBase
 from uuid import uuid4
 
+# TODO don't hardcode which bucket is public
+PUBLIC_PDF_BUCKET = "public-pdfs"
+
 class Base(DeclarativeBase):
     pass
 
@@ -30,6 +33,10 @@ class DbArticle(Base):
     @property
     def xdd_link(self):
         return f"https://xdd.wisc.edu/api/articles?docid={self.xdd_doc_id}"
+
+    @property
+    def is_public(self):
+        return self.bucket_name == PUBLIC_PDF_BUCKET
 
 class DbApiKey(Base):
     """ ORM Mapping for simple API key based authorization to access copyright-protected documents """

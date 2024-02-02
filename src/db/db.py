@@ -18,9 +18,6 @@ engine = setup_engine()
 Base.metadata.create_all(engine)
 DbSession = sessionmaker(bind=engine)
 
-# TODO don't hardcode which bucket is public
-PUBLIC_PDF_BUCKET = "public-pdfs"
-
 def _api_key_valid(session: Session, api_key: str):
     """ Check the API key exists and is enabled """
     return session.scalars(select(DbApiKey).filter_by(api_key=api_key, enabled=True)).first() is not None
@@ -36,7 +33,7 @@ def get_article(article_id: UUID, api_key: str, auth_required: bool = True) -> D
     """ Retrieve an article's metadata, then optionally ensure the requesting user has permissions to access the document """
     with DbSession() as session:
         article = session.get(DbArticle, article_id)
-        if auth_required and article.bucket_name != PUBLIC_PDF_BUCKET and not _api_key_valid(session, api_key):
+        if auth_required and not article.is_public and not _api_key_valid(session, api_key):
             raise HTTPException(status_code=403, detail="Invalid API key")
         return article
 
