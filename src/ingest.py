@@ -39,7 +39,7 @@ with open(path.join(WORK_DIR,'bibjson')) as f:
 
 for idx, entry in enumerate(bibjson[START_IDX:STOP_IDX]):
 
-    print(f"Ingesting {entry['identifier'][0]['id']} (${idx})")
+    print(f"Ingesting {entry['identifier'][0]['id']} (#{idx})")
     try:
         # TODO creating a separate transaction for each article is going to be slow, want things to be
         # as atomic as possible (for starters) though
