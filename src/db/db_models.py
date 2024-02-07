@@ -44,6 +44,7 @@ class DbApiKey(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
     api_key = Column(String, unique=True)
     enabled = Column(Boolean, default=True)
+    write_enabled = Column(Boolean, default=False) # Whether the API key enables put/post/delete operations
 
 
 

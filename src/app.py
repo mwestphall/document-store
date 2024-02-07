@@ -29,6 +29,13 @@ def get_document(document_id: UUID) -> Article:
     """ Return the metadata for the given document """
     return Article.from_db_article(db.get_article(document_id, None, False))
 
+@prefix_router.delete("/documents/{document_id}")
+def delete_document(document_id: UUID, x_api_key: Optional[str] = Header(None)):
+    """ Delete an article. Requires a write-enabled API key """
+    to_delete = db.get_article(document_id, x_api_key)
+    db.delete_article(document_id, x_api_key)
+    PdfOperator(to_delete).delete()
+
 
 @prefix_router.get("/documents/{document_id}/content")
 def get_document_contents(document_id: UUID, x_api_key: Optional[str] = Header(None)) -> RedirectResponse:

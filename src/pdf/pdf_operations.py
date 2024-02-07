@@ -63,6 +63,10 @@ class PdfOperator:
 
         return get_presigned_url(self.article.bucket_name, self.dest_path)
 
+    def delete(self) -> str:
+        """ Delete the PDF from S3 """
+        delete_object(self.article.bucket_name, self.source_path)
+
 
 class PdfPageOperator(PdfOperator):
     """ PdfOperator that extracts a single page from the source PDF """
