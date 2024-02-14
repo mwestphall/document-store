@@ -55,3 +55,11 @@ class ArticleQuery(BaseModel):
     @model_validator(mode='after')
     def check_not_empty(self):
         assert self.xdd_id or self.doi, "Must provide at least one query parameter"
+
+
+class ArticleExtraction(BaseModel):
+    """ JSON model for article extractions obtained via COSMOS """
+    extraction_class: str = Field(..., description="The classification of the extraction")
+    score: float = Field(..., description="The confidence of the extraction")
+    bbox: tuple[float, float, float, float] = Field(..., description="The bounding box of the extraction")
+    page_num: int = Field(..., description="The page number of the extraction")

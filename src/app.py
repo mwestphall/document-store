@@ -6,9 +6,10 @@ from sqlalchemy import select
 from db import db
 from uuid import UUID
 from typing import Optional
-from model.api_models import Article, DocumentType, DatabaseMetrics, ArticleQuery
+from model.api_models import Article, DocumentType, DatabaseMetrics, ArticleQuery, ArticleExtraction
 from pdf.pdf_operations import PdfOperator, PdfPageOperator, PdfPageSnippetOperator
 from util.openapi_reverse_proxy_util import add_openapi_route
+from es_client.es_client import get_article_extractions
 
 api_prefix = environ['API_PREFIX']
 
@@ -67,6 +68,12 @@ def get_document_snippet(
     article = db.get_article(document_id, x_api_key)
     operator = PdfPageSnippetOperator(article, page_num, snippet_bb, content_type)
     return RedirectResponse(operator.get_presigned_document())
+
+@prefix_router.get("/documents/{document_id}/extractions")
+def get_document_extractions(document_id: UUID, x_api_key: Optional[str] = Header(None)) -> list[ArticleExtraction]:
+    """ Return a redirect to the full PDF contents of the given document """
+    article = db.get_article(document_id, x_api_key)
+    return get_article_extractions(article.xdd_doc_id)
 
 @prefix_router.get("/metrics")
 def get_metrics() -> DatabaseMetrics:

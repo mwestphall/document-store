@@ -6,3 +6,4 @@ boto3
 pymupdf
 pillow
 requests
+elasticsearch==7.17.9
