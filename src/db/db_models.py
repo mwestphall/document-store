@@ -25,6 +25,7 @@ class DbArticle(Base):
 
     ingest_date = Column(DateTime, nullable=False, server_default=func.now())
     ingest_batch = Column(String, default=None)
+    author = Column(String, default=None) # Currently, the API key that uploaded the article, if any
 
     @property
     def doi_link(self):

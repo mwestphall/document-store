@@ -1,13 +1,13 @@
 from os import environ
-from fastapi import FastAPI, APIRouter, Header, Depends
+from fastapi import FastAPI, APIRouter, Header, Depends, UploadFile, Form, HTTPException
 from fastapi.responses import RedirectResponse
 from fastapi.middleware.gzip import GZipMiddleware
 from sqlalchemy import select
 from db import db
-from uuid import UUID
+from uuid import UUID, uuid4
 from typing import Optional
 from model.api_models import Article, DocumentType, DatabaseMetrics, ArticleQuery
-from pdf.pdf_operations import PdfOperator, PdfPageOperator, PdfPageSnippetOperator
+from pdf.pdf_operations import PdfDbArticleConverter, PdfOperator, PdfPageOperator, PdfPageSnippetOperator
 from util.openapi_reverse_proxy_util import add_openapi_route
 
 api_prefix = environ['API_PREFIX']
@@ -18,6 +18,25 @@ app.add_middleware(GZipMiddleware)
 prefix_router = APIRouter(prefix=api_prefix)
 
 add_openapi_route(prefix_router)
+
+@prefix_router.post("/documents")
+def add_document(pdf: UploadFile, 
+        title: str = Form(), bucket: str = Form(), doi: Optional[str] = Form(None), 
+        x_api_key: str = Header()) -> Article:
+    """ Upload a new document to the document store """
+    if not (title and pdf.file and bucket):
+        raise HTTPException("Required parameter missing!")
+
+    data = pdf.file.read()
+    
+    article_converter = PdfDbArticleConverter(data, title, bucket, doi)
+    db.add_article(article_converter.convert(), x_api_key)
+    db_article = db.get_article(article_converter.article_id, x_api_key)
+    PdfOperator(db_article).upsert(data)
+    
+    return Article.from_db_article(db_article)
+
+
 
 @prefix_router.get("/documents")
 def get_documents(page: int = 0, per_page: int = 25) -> list[Article]:
@@ -30,7 +49,7 @@ def get_document(document_id: UUID) -> Article:
     return Article.from_db_article(db.get_article(document_id, None, False))
 
 @prefix_router.delete("/documents/{document_id}")
-def delete_document(document_id: UUID, x_api_key: Optional[str] = Header(None)):
+def delete_document(document_id: UUID, x_api_key: str = Header()):
     """ Delete an article. Requires a write-enabled API key """
     to_delete = db.get_article(document_id, x_api_key)
     db.delete_article(document_id, x_api_key)
