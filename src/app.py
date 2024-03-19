@@ -21,8 +21,8 @@ add_openapi_route(prefix_router)
 
 @prefix_router.post("/documents")
 def add_document(pdf: UploadFile, 
-        title: Annotated[str, Form()], bucket: Annotated[str, Form()], doi: Annotated[Optional[str], Form(None)], 
-        x_api_key: Annotated[str, Header()]) -> Article:
+        title: Annotated[str, Form()], bucket: Annotated[str, Form()], doi: Annotated[Optional[str], Form()] = None, 
+        x_api_key: Annotated[str, Header()] = None) -> Article:
     """ Upload a new document to the document store """
     if not (title and pdf.file and bucket):
         raise HTTPException("Required parameter missing!")
@@ -57,7 +57,7 @@ def delete_document(document_id: UUID, x_api_key: Annotated[str, Header()]):
 
 
 @prefix_router.get("/documents/{document_id}/content")
-def get_document_contents(document_id: UUID, x_api_key: Annotated[Optional[str], Header(None)]) -> RedirectResponse:
+def get_document_contents(document_id: UUID, x_api_key: Annotated[Optional[str], Header()] = None) -> RedirectResponse:
     """ Return a redirect to the full PDF contents of the given document """
     article = db.get_article(document_id, x_api_key)
     operator = PdfOperator(article)
@@ -66,7 +66,7 @@ def get_document_contents(document_id: UUID, x_api_key: Annotated[Optional[str],
 @prefix_router.get("/documents/{document_id}/page/{page_num}")
 def get_document_page(
         document_id: UUID, page_num: int, content_type: DocumentType = 'pdf', 
-        x_api_key: Optional[str] = Header(None)) -> RedirectResponse:
+        x_api_key: Optional[str] = Header()) -> RedirectResponse:
     """ Return a redirect to the contents of a single page of the given document
     in the specified output format
     """
@@ -76,8 +76,8 @@ def get_document_page(
 
 @prefix_router.get("/documents/{document_id}/page/{page_num}/snippet/{snippet}")
 def get_document_snippet(
-        document_id: UUID, page_num: int, snippet: str, content_type: DocumentType = 'pdf', 
-        x_api_key: Annotated[Optional[str], Header(None)] = None) -> RedirectResponse:
+        document_id: UUID, page_num: int, snippet: str, x_api_key: Annotated[Optional[str], Header()] = None, 
+        content_type: DocumentType = 'pdf') -> RedirectResponse:
     """ Return a redirect to the contents of a single page of the given document
     in the specified output format, with the region given by the comma-separated
     list of bounds highlighted
