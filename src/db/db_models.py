@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Boolean, Integer, DateTime, func, ForeignKey
+from sqlalchemy import Column, String, Boolean, Integer, Float, DateTime, func, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import DeclarativeBase, Mapped, relationship, mapped_column
 from uuid import uuid4
@@ -52,20 +52,36 @@ class DbArticleExtraction(Base):
     # Category of the extraction
     extraction_type = Column(String, nullable=False)
     # Classification of the extraction within its category
-    extraction_label = Column(String, default=None)
+    label = Column(String, default=None)
+    # Confidence score of the extraction
+    score = Column(Float, default=True)
     # Extra metadata about the extraction within its category
-    extraction_data = Column(JSONB, default=None)
+    extra_data = Column(JSONB, default=None)
+    # If the extraction is hosted locally, its path in S3
+    s3_path = Column(String, default=None)
+    # If the extraction is hosted remotely, its url
+    url = Column(String, default=None)
 
     # Location of extraction within its parent PDF
     page = Column(Integer, default=None)
-    x0   = Column(Integer, default=None)
-    x1   = Column(Integer, default=None)
-    y0   = Column(Integer, default=None)
-    y1   = Column(Integer, default=None)
+    x0   = Column(Float, default=None)
+    x1   = Column(Float, default=None)
+    y0   = Column(Float, default=None)
+    y1   = Column(Float, default=None)
 
     # Ownership info 
     extraction_date = Column(DateTime, nullable=False, server_default=func.now())
-    author = Column(String, default=None)
+    registrar = Column(String, default=None)
+
+    def __init__(self, article_id, extraction_type, label, score, extra_data, url, page, bounds):
+        self.article_id = article_id
+        self.extraction_type = extraction_type
+        self.label = label
+        self.score = score
+        self.extra_data = extra_data
+        self.url = url
+        self.page = page
+        self.x0, self.y0, self.x1, self.y1 = bounds or [None] * 4
 
 
 class DbApiKey(Base):

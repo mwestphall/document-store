@@ -6,7 +6,7 @@ from sqlalchemy import select
 from db import db
 from uuid import UUID, uuid4
 from typing import Optional, Annotated
-from model.api_models import Article, DocumentType, DatabaseMetrics, ArticleQuery
+from model.api_models import Article, DocumentType, DatabaseMetrics, ArticleQuery, ArticleExtraction
 from pdf.pdf_operations import PdfDbArticleConverter, PdfOperator, PdfPageOperator, PdfPageSnippetOperator
 from util.openapi_reverse_proxy_util import add_openapi_route
 
@@ -95,5 +95,16 @@ def get_metrics() -> DatabaseMetrics:
 def query_articles(query: Annotated[ArticleQuery, Depends()]) -> Article:
     """ Query an article based on an external ID (xdd id or doi)"""
     return db.query_articles(query)
+
+
+@prefix_router.get("/documents/{document_id}/extractions")
+def get_article_extractions(document_id: UUID, extraction_type: Optional[str], 
+        x_api_key: Annotated[Optional[str], Header()] = None) -> list[ArticleExtraction]:
+    return db.get_article_extractions(document_id, extraction_type, x_api_key)
+
+@prefix_router.post("/documents/{document_id}/extractions")
+def add_article_extraction(document_id: UUID, extraction: ArticleExtraction, 
+        x_api_key: Annotated[Optional[str], Header()] = None):
+    db.add_article_extraction(document_id, extraction, x_api_key)
 
 app.include_router(prefix_router)
