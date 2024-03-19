@@ -25,7 +25,7 @@ class DbArticle(Base):
 
     ingest_date = Column(DateTime, nullable=False, server_default=func.now())
     ingest_batch = Column(String, default=None)
-    author = Column(String, default=None) # Currently, the API key that uploaded the article, if any
+    registrant = Column(String, default=None) # Currently, the API key that uploaded the article, if any
 
     extractions: Mapped[list["DbArticleExtraction"]] = relationship(cascade="delete")
 
@@ -72,7 +72,11 @@ class DbApiKey(Base):
     """ ORM Mapping for simple API key based authorization to access copyright-protected documents """
     __tablename__ = "api_keys"
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
-    api_key = Column(String, unique=True)
+    api_key = Column(String, nullable=False, unique=True)
+    # Name associated with the API key
+    contact_name = Column(String, nullable=False)
+    # Email associated with the API key
+    contact_email = Column(String, nullable=False, unique=True)
     enabled = Column(Boolean, default=True)
     write_enabled = Column(Boolean, default=False) # Whether the API key enables put/post/delete operations
 

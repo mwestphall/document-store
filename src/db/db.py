@@ -32,7 +32,7 @@ def add_article(article: DbArticle, api_key: str) -> DbArticle:
     with DbSession() as session:
         if not _api_key_write_enabled(session, api_key):
             raise HTTPException(status_code=403, detail="Invalid API key")
-        article.author = api_key
+        article.registrant = api_key
         session.add(article)
         session.commit()
         return article
@@ -74,7 +74,7 @@ def delete_article(article_id: UUID, api_key: str) -> DbArticle:
         article = session.get(DbArticle, article_id)
         if article is None:
             raise HTTPException(404, "Article matching query criteria not found")
-        if not _api_key_write_enabled(session, api_key) or article.author != api_key:
+        if not _api_key_write_enabled(session, api_key) or article.registrant != api_key:
             raise HTTPException(status_code=403, detail="Invalid API key")
 
         session.delete(article)
