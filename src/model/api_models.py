@@ -45,6 +45,7 @@ class Article(BaseModel):
 class DatabaseMetrics(BaseModel):
     """ JSON model for database metrics """
     document_count: int = Field(..., description="The count of documents in the database")
+    extraction_count: int = Field(..., description="The count of document extractions in the database")
 
 
 class ArticleQuery(BaseModel):
@@ -59,6 +60,7 @@ class ArticleQuery(BaseModel):
 
 class ArticleExtraction(BaseModel):
     """ JSON model for article extractions obtained via an external service """
+    id: UUID = Field(None, description="The internal ID of the xtraction")
     extraction_type: str = Field(..., description="The type of model that produced the extraction")
     extraction_label: str = Field(..., description="The classification of the extraction within its model")
     score: float = Field(None, description="The confidence of the extraction")
@@ -70,6 +72,7 @@ class ArticleExtraction(BaseModel):
     @staticmethod
     def from_db_extraction(db_extraction: DbArticleExtraction) -> "ArticleExtraction":
         return ArticleExtraction(
+            id = db_extraction.id,
             extraction_type=db_extraction.extraction_type,
             extraction_label=db_extraction.label,
             page_num=db_extraction.page,
@@ -79,7 +82,7 @@ class ArticleExtraction(BaseModel):
             data = db_extraction.extra_data
         )
 
-    def to_db_extraction(self,article_id: UUID) -> DbArticleExtraction:
+    def to_db_extraction(self, article_id: UUID) -> DbArticleExtraction:
         return DbArticleExtraction(
             article_id,
             self.extraction_type,
