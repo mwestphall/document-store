@@ -98,6 +98,7 @@ def add_article_extraction(article_id: UUID, extraction: ArticleExtraction, api_
     with DbSession() as session:
         validate_write_access(session, api_key)
         db_extraction = extraction.to_db_extraction(article_id)
+        db_extraction.registrant = api_key
         session.add(db_extraction)
         session.commit()
 
@@ -105,10 +106,9 @@ def add_article_extraction(article_id: UUID, extraction: ArticleExtraction, api_
 def delete_article_extraction(article_id: UUID, extraction_id: UUID, api_key: str):
     """ Remove an extraction from an article """
     with DbSession() as session:
-        article = get_article_with_api_key(session, article_id, api_key)
-        if article.registrant != api_key:
-            raise HTTPException(status_code=403, detail="Must own article")
         to_delete = session.get(DbArticleExtraction, extraction_id)
+        if to_delete.registrant != api_key:
+            raise HTTPException(status_code=403, detail="Must own article extraction")
         session.delete(to_delete)
         session.commit()
 

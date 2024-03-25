@@ -71,7 +71,7 @@ class DbArticleExtraction(Base):
 
     # Ownership info 
     extraction_date = Column(DateTime, nullable=False, server_default=func.now())
-    registrar = Column(String, default=None)
+    registrant = Column(String, default=None)
 
     def __init__(self, article_id, extraction_type, label, score, extra_data, url, page, bounds):
         self.article_id = article_id

@@ -60,14 +60,14 @@ class ArticleQuery(BaseModel):
 
 class ArticleExtraction(BaseModel):
     """ JSON model for article extractions obtained via an external service """
-    id: UUID = Field(None, description="The internal ID of the xtraction")
+    id: UUID | None = Field(None, description="The internal ID of the xtraction")
     extraction_type: str = Field(..., description="The type of model that produced the extraction")
     extraction_label: str = Field(..., description="The classification of the extraction within its model")
-    score: float = Field(None, description="The confidence of the extraction")
-    bbox: tuple[float, float, float, float] = Field(None, description="The bounding box of the extraction")
-    page_num: int = Field(None, description="The page number of the extraction")
-    external_link: str = Field(None, description="A link to the extraction")
-    data: dict = Field(None, description="Extra information about the extraction")
+    score: float | None = Field(None, description="The confidence of the extraction")
+    bbox: tuple[float, float, float, float] | None = Field(None, description="The bounding box of the extraction")
+    page_num: int | None = Field(None, description="The page number of the extraction")
+    external_link: str | None = Field(None, description="A link to the extraction")
+    data: dict | None = Field(None, description="Extra information about the extraction")
 
     @staticmethod
     def from_db_extraction(db_extraction: DbArticleExtraction) -> "ArticleExtraction":
