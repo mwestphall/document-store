@@ -21,7 +21,8 @@ filtering (e.g.,
 [the xDD snippets API](https://xdd.wisc.edu/api/snippets?term=Belle%20Fourche%20Formation&set=dolomites))
 but can be managed independently (e.g., by USGS as part of the CriticalMAAS program). 
 
-Work is ongoing to integrate the system with the [CriticalMAAS CDR schemas](https://github.com/DARPA-CRITICALMAAS/cdr_schemas)
+Work is ongoing to integrate the system into the CriticalMAAS CDR, beginning by porting the model into the 
+[central CriticalMAAS CDR schemas](https://github.com/DARPA-CRITICALMAAS/cdr_schemas)
 maintained by Jataware.
 
 **xDD will not provide or integrate capabilities for
